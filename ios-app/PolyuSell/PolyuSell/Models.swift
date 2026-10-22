@@ -16,7 +16,9 @@ enum ItemCondition: String, CaseIterable, Codable{
 }
 struct Profile: Codable, Identifiable{
     let id: UUID
+    var email: String
     var username: String
+    var name: String
     var avatarUrl: String?
     var bio: String
 }
@@ -35,7 +37,7 @@ struct Item: Codable, Identifiable{
     var soldAt: Date?
     var cId: Int
     var title: String
-    var description: String
+    var description: String?
     var photos: [ItemPhoto]
     var price: Double
     var status: ItemStatus
@@ -48,6 +50,13 @@ struct ItemPhoto: Codable, Identifiable{
     let itemId: UUID
     var storagePath: String
     var order: Int
+    
+    enum CodingKeys: String, CodingKey {
+            case id
+            case itemId = "item_id"
+            case storagePath = "storage_path"
+            case order = "sort_order"
+        }
 }
 enum FulfillmentMethod: String, Codable, CaseIterable {
     case f2f = "F2F"
@@ -95,7 +104,3 @@ struct Review: Codable, Identifiable {
     var comment: String?
 }
 
-@Observable
-class ViewModel{
-    var isLogin = false
-}
