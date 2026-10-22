@@ -21,6 +21,8 @@ struct Profile: Codable, Identifiable{
     var name: String
     var avatarUrl: String?
     var bio: String
+    var averageRating: Double?
+    var ratingCount: Int?
 }
 
 struct Category: Codable,Identifiable{
@@ -28,7 +30,17 @@ struct Category: Codable,Identifiable{
     var name: String
     var slug: String
 }
+struct Subcategory: Codable, Identifiable {
+    let id: Int
+    let categoryId: Int
+    var name: String
+    var slug: String
 
+    enum CodingKeys: String, CodingKey {
+        case id, name, slug
+        case categoryId = "category_id"
+    }
+}
 struct Item: Codable, Identifiable{
     let id: UUID
     let sellerId: UUID
@@ -36,6 +48,7 @@ struct Item: Codable, Identifiable{
     var updatedAt: Date
     var soldAt: Date?
     var cId: Int
+    var subcategoryId: Int? 
     var title: String
     var description: String?
     var photos: [ItemPhoto]

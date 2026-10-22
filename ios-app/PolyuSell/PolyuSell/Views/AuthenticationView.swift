@@ -1,23 +1,14 @@
 //
-//  ContentView.swift
+//  SignupView.swift
 //  PolyuSell
 //
-//  Created by HUAHUA on 15/10/2026.
+//  Created by HUAHUA on 22/10/2026.
 //
 
 import SwiftUI
 import GoogleSignInSwift
 import Supabase
-extension View{
-    func circleLinearWhite(w: CGFloat, maxOpacity: Double, minOpacity: Double, x: CGFloat, y: CGFloat) -> some View{
-        Circle()
-            .fill(
-                LinearGradient(colors: [.white.opacity(maxOpacity), .white.opacity(minOpacity)], startPoint: .top, endPoint: .bottom)
-            )
-            .frame(width: w)
-            .offset(x:x, y:y)
-    }
-}
+
 struct SignupView: View {
     @Environment(AuthManager.self) var authVM
     
@@ -62,6 +53,7 @@ struct SignupView: View {
                         .font(.title.bold())
                     Spacer()
                 }
+                
                 TextField("name", text: $name)
                     .textContentType(.name)
                 TextField("username", text: $username)
@@ -69,8 +61,9 @@ struct SignupView: View {
                 TextField("email", text: $email)
                     .textContentType(.emailAddress)
                 TextField("password", text: $password)
-                
+                    .textContentType(.newPassword)
                 TextField("confirm password", text: $passwordConfirm)
+                    .textContentType(.newPassword)
                 
                 Text(err)
                     .font(.footnote)
@@ -109,7 +102,7 @@ struct SignupView: View {
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)
             .frame(maxHeight: 550)
-            .background(.white)
+            .background(Color(.systemBackground))
             .clipShape(.rect(cornerRadius: 30))
             .onDisappear{
                 name = ""
@@ -126,7 +119,7 @@ struct SignupView: View {
 }
 struct LoginView: View {
     @Environment(AuthManager.self) var authVM
-    
+    @Environment(ProfileStore.self) var profileStore
     @State var email = ""
     @State var password = ""
     @State var isSecure = true
@@ -232,7 +225,7 @@ struct LoginView: View {
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .padding()
-                        .background(.white)
+                        .background(Color(.systemBackground))
                 }
                 //3th party auth
                 
@@ -271,129 +264,17 @@ struct LoginView: View {
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)
             .frame(maxHeight: 550)
-            .background(.white)
+            .background(Color(.systemBackground))
             .clipShape(.rect(cornerRadius: 30))
+            
             .onDisappear{
                 email = ""
                 password = ""
             }
+            
         }
         
         //}
     }
-}
-struct RootView: View {
-    @Environment(ViewModel.self) var vm
-    @Environment(AuthManager.self) var authVM
-    var body: some View {
-        TabView{
-            Tab("Home", systemImage: "house"){
-                Button("Sign out"){
-                    Task{
-                        try await supabase.auth.signOut()
-                        
-                    }
-                }
-            }
-            Tab("Category", systemImage: "square.grid.2x2"){}
-            Tab("Chat", systemImage: "bubble"){}
-            Tab("Profile", systemImage: "person"){}
-        }
-    }
-}
-struct OnboardView: View {
-    @Environment(AuthManager.self) var authVM
-    var body: some View {
-        NavigationStack{
-            VStack{
-                Text("Polyu Sell")
-                    .font(.largeTitle.bold())
-                    .foregroundStyle(.white)
-                
-                NavigationLink( destination: LoginView()) {
-                    Text("Get Start")
-                        .font(.title3.bold())
-                        .padding()
-                        .padding(.horizontal, 30)
-                        .background(.white, in: .rect(cornerRadius: 30))
-                }
-            }
-            .ignoresSafeArea(.all)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(
-                ZStack{
-                    Rectangle()
-                        .fill(.red)
-                    Group{
-                        
-                        
-                    }
-                    .blur(radius: 6)
-                }
-                
-            )
-        }
-    }
-}
-
-struct ContentView: View {
-    @State var vm = ViewModel()
-    @State var authVM = AuthManager()
-    @State var isSplash = false
-    
-    var body: some View {
-        Group{
-            if isSplash{
-                if authVM.isRestoring{
-                    ProgressView("Restoring session...")
-                }else{
-                    switch authVM.isLogin{
-                    case true:
-                        RootView()
-                            .overlay(alignment: .top) {
-                                // Debug badge — remove before submission
-                                VStack(spacing: 4) {
-                                    Text("DEBUG")
-                                        .font(.caption2.bold())
-                                        .foregroundStyle(.white)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(.red, in: Capsule())
-                                    
-                                    Text(authVM.currentUser?.email ?? "no email")
-                                        .font(.caption)
-                                    Text(authVM.currentUser?.id.uuidString ?? "no id")
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
-                                    Text("provider: \(authVM.currentUser?.appMetadata["provider"]?.stringValue ?? "—")")
-                                        .font(.caption2)
-                                    Text("\(authVM.currentProfile)")
-                                }
-                                .padding(8)
-                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
-                                .padding(.top, 60)
-                            }
-                        
-                    case false:
-                        OnboardView()
-                    }
-                }
-            }else{
-                ProgressView()
-            }
-        }
-        .environment(authVM)
-        .environment(vm)
-        .ignoresSafeArea(.all)
-        .onAppear{
-            withAnimation(.easeIn.delay(1)){
-                isSplash.toggle()
-            }
-        }
-    }
-}
-
-#Preview {
-    ContentView()
 }
 

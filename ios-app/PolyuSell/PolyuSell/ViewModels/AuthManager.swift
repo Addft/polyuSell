@@ -1,48 +1,12 @@
 //
-//  ViewModel.swift
+//  AuthManager.swift
 //  PolyuSell
 //
-//  Created by HUAHUA on 16/10/2026.
+//  Created by HUAHUA on 22/10/2026.
 //
 
 import Foundation
 import Supabase
-
-enum SupabaseConfig {
-    static let client: SupabaseClient = {
-        guard let filePath = Bundle.main.path(forResource: "Supabase", ofType: "plist"),
-              let plist = NSDictionary(contentsOfFile: filePath),
-              let supabaseURL = plist["SUPABASE_URL"] as? String,
-              let supabaseKey = plist["SUPABASE_ANON_KEY"] as? String else {
-            fatalError("Could not load Supabase configuration from plist.")
-        }
-        
-        guard
-            let url = Bundle.main.url(forResource: "Supabase", withExtension: "plist"),
-            let data = try? Data(contentsOf: url),
-            let dict = try? PropertyListSerialization.propertyList(
-                from: data, format: nil
-            ) as? [String: Any],
-            let urlString = dict["SUPABASE_URL"] as? String,
-            let supabaseURL = URL(string: urlString),
-            let anonKey = dict["SUPABASE_ANON_KEY"] as? String
-        else {
-            fatalError("Missing or invalid Supabase.plist. Check the file is added to the app target.")
-        }
-        
-        return SupabaseClient(supabaseURL: supabaseURL, supabaseKey: anonKey)
-    }()
-}
-
-// Global shortcut so you can keep using `supabase.auth...`
-let supabase = SupabaseConfig.client
-
-@Observable
-class ViewModel{
-    
-    
-    
-}
 
 @Observable
 class AuthManager{
@@ -152,15 +116,10 @@ class AuthManager{
                 self.isLogin = session != nil
                 self.currentUser = session?.user
                 
-                if let session{
-                    await fetchProfile(userId: session.user.id)
-                }else{
-                    currentProfile = nil
-                }
             case .signedOut, .userDeleted:
                 currentUser = nil
-                currentProfile = nil
                 isLogin = false
+                
             default:
                 break
             }
@@ -170,19 +129,6 @@ class AuthManager{
         }
     }
     
-    func fetchProfile(userId: UUID) async {
-        do {
-            let profile: Profile = try await supabase
-                .from("profiles")
-                .select()
-                .eq("id", value: userId)
-                .single()
-                .execute()
-                .value
-            currentProfile = profile
-        } catch {
-            print("Failed to load profile: \(error)")
-        }
-    }
+  
     
 }
