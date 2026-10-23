@@ -23,6 +23,14 @@ struct Profile: Codable, Identifiable{
     var bio: String
     var averageRating: Double?
     var ratingCount: Int?
+    var updatedAt: Date?
+    enum CodingKeys: String, CodingKey {
+        case id, email, username, name, bio
+        case avatarUrl     = "avatar_url"
+        case averageRating = "average_rating"
+        case ratingCount   = "rating_count"
+        case updatedAt     = "updated_at"
+    }
 }
 
 struct Category: Codable,Identifiable{

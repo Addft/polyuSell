@@ -7,12 +7,40 @@
 
 import Foundation
 import Supabase
+func isUsernameAvailable(username: String) async -> Bool{
+    do{
+        let rows: [Profile] = try await supabase
+            .from("profiles")
+            .select()
+            .eq("username", value: username)
+            .limit(1)
+            .execute()
+            .value
+        return rows.isEmpty
+    }catch{
+        return false
+    }
+}
 
+func isEmailAvailable(email: String) async -> Bool{
+    do{
+        let rows: [Profile] = try await supabase
+            .from("profiles")
+            .select()
+            .eq("email", value: email)
+            .limit(1)
+            .execute()
+            .value
+        return rows.isEmpty
+    }catch{
+        return false
+    }
+}
 @Observable
 class AuthManager{
     var isLogin = false
     var currentUser: User?
-    var currentProfile: Profile?
+    
     var isRestoring = true
     private var authTask: Task<Void, Never>?
     init(){
@@ -21,78 +49,70 @@ class AuthManager{
     deinit{
         authTask?.cancel()
     }
-    func signUp(name: String, username: String, email: String, password: String, passwordConfirm: String) async throws -> String?{
+    func signUp(name: String, username: String, email: String, password: String, passwordConfirm: String) async  -> (String?, Bool){
         let name     = name.trimmingCharacters(in: .whitespaces)
         let username = username.trimmingCharacters(in: .whitespaces).lowercased()
         let email    = email.trimmingCharacters(in: .whitespacesAndNewlines)
         
         guard !name.isEmpty && !email.isEmpty && !password.isEmpty && !passwordConfirm.isEmpty else {
-            return "please fill in all the fields"
+            return ("please fill in all the fields", false)
         }
         
         guard username.range(of: #"^[a-z0-9_]{3,20}$"#,
                              options: .regularExpression) != nil else {
-            return "Username must be 3–20 chars (letters, numbers, _)"
+            return ("Username must be 3–20 chars (letters, numbers, _)", false)
         }
         
         guard await isUsernameAvailable(username: username) else {
-            return "That username is already taken — try another"
+            return ("That username is already taken — try another", false)
         }
         let emailRegex = #/^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/#
         guard (try? emailRegex.wholeMatch(in: email)) != nil else {
-            return "Email format not valid"
+            return ("Email format not valid", false)
         }
         guard await isEmailAvailable(email: email) else {
-            return "That email is already registered — try signing in instead"
+            return ("That email is already registered — try signing in instead", false)
         }
         guard password == passwordConfirm else {
-            return "Passwords do not match"
+            return ("Passwords do not match", false)
         }
         guard password.count >= 6 else {
-            return "Password must be at least 6 characters"
+            return ("Password must be at least 6 characters", false)
         }
-        
-        let response = try await supabase.auth.signUp(
-            email: email, password: password,
-            data: ["name" : .string(name), "username": .string(username)]
-        )
-        if response.session == nil{
-            return "We sent a confirmation link to \(email). Please verify before signing in."
-        }
-        return nil
-        
-        func isUsernameAvailable(username: String) async -> Bool{
-            do{
-                let rows: [Profile] = try await supabase
-                    .from("profiles")
-                    .select()
-                    .eq("username", value: username)
-                    .limit(1)
-                    .execute()
-                    .value
-                return rows.isEmpty
-            }catch{
-                return true
+        do {
+            let response = try await supabase.auth.signUp(
+                email: email, password: password,
+                data: ["name": .string(name), "username": .string(username)]
+            )
+            if response.session == nil {
+                return ("We sent a confirmation link to \(email). Please verify before signing in.", true)
             }
-        }
-        
-        func isEmailAvailable(email: String) async -> Bool{
-            do{
-                let rows: [Profile] = try await supabase
-                    .from("profiles")
-                    .select()
-                    .eq("email", value: email)
-                    .limit(1)
-                    .execute()
-                    .value
-                return rows.isEmpty
-            }catch{
-                return true
-            }
+            return (nil, false)
+        } catch {
+            return (error.localizedDescription, false)
         }
     }
     
-    
+    func signIn(input: String, password: String) async -> String? {
+        var email = input
+        do{
+            if !input.contains("@"){
+                let row: Profile = try await supabase.from("profiles")
+                    .select()
+                    .eq("username", value: input)
+                    .maybeSingle()
+                    .execute()
+                    .value
+                
+                email = row.email
+            }
+            
+            try await supabase.auth.signIn(email: email, password: password)
+        }catch{
+            return error.localizedDescription
+        }
+        return nil
+    }
     
     func signInWithGoogle() async throws -> String?{
         do {
@@ -129,6 +149,6 @@ class AuthManager{
         }
     }
     
-  
+    
     
 }

@@ -17,33 +17,6 @@ extension View{
             .frame(width: w)
             .offset(x:x, y:y)
     }
-    
-    func avatar(url: String?, w: CGFloat) -> some View{
-        Group{
-            if let url = url, let imgUrl = URL(string: (url)){
-                AsyncImage(url: imgUrl){ phase in
-                    switch phase{
-                    case .success(let img):
-                        img.resizable()
-                            .scaledToFit()
-                            .frame(width: w, height: w)
-                    case .empty:
-                        ProgressView()
-                    case .failure(_):
-                        ProgressView()
-                    @unknown default:
-                        ProgressView()
-                    }
-                }
-            }else{
-                Image(systemName: "person.circle.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: w, height: w)
-                    .foregroundStyle(.white)
-            }
-        }
-    }
 }
 
 struct RootView: View {
@@ -63,7 +36,7 @@ struct RootView: View {
             }
             Tab("Category", systemImage: "square.grid.2x2"){}
             Tab("Chat", systemImage: "bubble"){}
-           
+            
         }
     }
 }
@@ -101,14 +74,14 @@ struct ContentView: View {
             }
             if let id = authVM.currentUser?.id{
                 Task{
-                    profileStore.currentProfile = try? await profileStore.fetchProfile(userId: id)
+                    profileStore.currentProfile = await profileStore.fetchProfile(userId: id)
                 }
             }
         }
         .onChange(of: authVM.currentUser?.id) { oldValue, newValue in
             if let newValue = newValue{
                 Task{
-                    profileStore.currentProfile = try? await profileStore.fetchProfile(userId: newValue)
+                    profileStore.currentProfile = await profileStore.fetchProfile(userId: newValue)
                 }
             }else{
                 

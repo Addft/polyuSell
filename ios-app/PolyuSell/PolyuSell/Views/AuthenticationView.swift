@@ -11,14 +11,15 @@ import Supabase
 
 struct SignupView: View {
     @Environment(AuthManager.self) var authVM
-    
+    @Environment(\.dismiss) var dismiss
     @State var err = ""
+    @State var msg = ""
     @State var name = ""
     @State var email = ""
     @State var username = ""
     @State var password = ""
     @State var passwordConfirm = ""
-    
+    @State var isAlert = false
     var body: some View {
         //NavigationStack{
         ZStack{
@@ -47,24 +48,38 @@ struct SignupView: View {
                     .offset(x: 120, y: -310)
             }
             
-            VStack(spacing: 20){
+            VStack(spacing: 10){
                 HStack{
                     Text("Create Account")
                         .font(.title.bold())
                     Spacer()
                 }
-                
-                TextField("name", text: $name)
-                    .textContentType(.name)
-                TextField("username", text: $username)
-                    .textContentType(.username)
-                TextField("email", text: $email)
-                    .textContentType(.emailAddress)
-                TextField("password", text: $password)
-                    .textContentType(.newPassword)
-                TextField("confirm password", text: $passwordConfirm)
-                    .textContentType(.newPassword)
-                
+                Form{
+                    Section("Name"){
+                        TextField("name", text: $name)
+                            .textContentType(.name)
+                    }
+                    Section("Username"){
+                        TextField("username", text: $username)
+                            .textContentType(.username)
+                    }
+                    Section("Email"){
+                        TextField("email", text: $email)
+                            .textContentType(.emailAddress)
+                            .keyboardType(.emailAddress)
+                    }
+                    Section("Password"){
+                        TextField("password", text: $password)
+                    }
+                    Section("Password confirmation"){
+                        TextField("confirm password", text: $passwordConfirm)
+                    }
+                }
+                .formStyle(.grouped)
+                .listSectionSpacing(10)
+                .scrollDisabled(true)
+                .frame(height: 510)
+                .padding(.horizontal,-20)
                 Text(err)
                     .font(.footnote)
                     .foregroundStyle(.red)
@@ -72,7 +87,15 @@ struct SignupView: View {
                 VStack{
                     Button(action: {
                         Task{
-                         err = try await authVM.signUp(name: name, username: username, email: email, password: password, passwordConfirm: passwordConfirm) ?? ""
+                            err = ""
+                            let (error, bool) = await authVM.signUp(name: name, username: username, email: email, password: password, passwordConfirm: passwordConfirm)
+                            
+                            isAlert = bool
+                            if isAlert{
+                                msg = error ?? ""
+                            }else{
+                                err = error ?? ""
+                            }
                         }
                     }) {
                         HStack{
@@ -84,6 +107,14 @@ struct SignupView: View {
                         }
                     }
                     .buttonStyle(.bordered)
+                    .alert("Confirm email", isPresented: $isAlert) {
+                        Button(role: .confirm){
+                            isAlert.toggle()
+                            dismiss()
+                        }
+                    }message: {
+                        Text(msg)
+                    }
                     
                     HStack{
                         Text("Already have an account?")
@@ -98,10 +129,10 @@ struct SignupView: View {
                 
             }
             .padding(30)
-            .textFieldStyle(.roundedBorder)
+           
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)
-            .frame(maxHeight: 550)
+            .frame(maxHeight: 830)
             .background(Color(.systemBackground))
             .clipShape(.rect(cornerRadius: 30))
             .onDisappear{
@@ -161,27 +192,36 @@ struct LoginView: View {
                     Spacer()
                 }
                 //form section
-                Group{
-                    TextField("email", text: $email)
-                        .textContentType(.emailAddress)
-                        
-                    HStack{
-                        if isSecure{
-                            SecureField("password", text: $password)
-                                .textContentType(.password)
-                        }else{
-                            TextField("password", text: $password)
-                                .textContentType(.password)
-                        }
-                        Button(action: {
-                            withAnimation {
-                                isSecure.toggle()
+                Form{
+                    Section("Email/Username"){
+                        TextField("email/username", text: $email)
+                            .textContentType(.emailAddress)
+                            .textContentType(.username)
+                    }
+                    Section("Password"){
+                        HStack{
+                            if isSecure{
+                                SecureField("password", text: $password)
+                                    .textContentType(.password)
+                            }else{
+                                TextField("password", text: $password)
+                                    .textContentType(.password)
                             }
-                        }) {
-                            Image(systemName: isSecure ? "eye.slash" : "eye")
+                            Button(action: {
+                                withAnimation {
+                                    isSecure.toggle()
+                                }
+                            }) {
+                                Image(systemName: isSecure ? "eye.slash" : "eye")
+                            }
                         }
                     }
                 }
+                .formStyle(.grouped)
+                .scrollDisabled(true)
+                .frame(height: 210)
+                .padding(-20)
+                
                 Text(err)
                     .foregroundStyle(.red).font(.footnote)
                 //btns
@@ -189,11 +229,7 @@ struct LoginView: View {
                     //login btn
                     Button(action: {
                         Task{
-                            do{
-                                try await supabase.auth.signIn(email: email, password: password)
-                            }catch{
-                                err = error.localizedDescription
-                            }
+                            err = await authVM.signIn(input: email, password: password) ?? ""
                         }
                     }){
                         HStack{
@@ -260,10 +296,9 @@ struct LoginView: View {
                 // Spacer()
             }
             .padding(30)
-            .textFieldStyle(.roundedBorder)
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)
-            .frame(maxHeight: 550)
+            .frame(maxHeight: 600)
             .background(Color(.systemBackground))
             .clipShape(.rect(cornerRadius: 30))
             
