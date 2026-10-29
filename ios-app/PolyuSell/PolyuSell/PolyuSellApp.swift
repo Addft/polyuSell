@@ -14,11 +14,13 @@ import Supabase
 struct PolyuSellApp: App {
     @State var authVM = AuthManager()
     @State var profileStore = ProfileStore()
+    @State var categoryStore = CategoryStore()
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(authVM)
                 .environment(profileStore)
+                .environment(categoryStore)
                 .onOpenURL { url in
                     Task {
                         do {

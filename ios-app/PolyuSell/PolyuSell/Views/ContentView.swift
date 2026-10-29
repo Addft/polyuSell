@@ -23,29 +23,27 @@ struct RootView: View {
     @Environment(AuthManager.self) var authVM
     var body: some View {
         TabView{
+            Tab("Category", systemImage: "square.grid.2x2"){
+                CategoryView()
+            }
+            Tab("Home", systemImage: "house"){
+              
+            }
             Tab("Profile", systemImage: "person"){
                 ProfileView()
             }
-            Tab("Home", systemImage: "house"){
-                Button("Sign out"){
-                    Task{
-                        try await supabase.auth.signOut()
-                        
-                    }
-                }
-            }
-            Tab("Category", systemImage: "square.grid.2x2"){}
             Tab("Chat", systemImage: "bubble"){}
             
         }
     }
 }
 struct ContentView: View {
-    @State var vm = ViewModel()
+   
     @State var isSplash = false
     
     @Environment(AuthManager.self) var authVM
     @Environment(ProfileStore.self) var profileStore
+    @Environment(CategoryStore.self) var categoryStore
     var body: some View {
         Group{
             if isSplash{
@@ -66,7 +64,7 @@ struct ContentView: View {
         }
         .environment(authVM)
         .environment(profileStore)
-        .environment(vm)
+        .environment(categoryStore)
         .ignoresSafeArea(.all)
         .onAppear{
             withAnimation(.easeIn.delay(1)){
@@ -94,5 +92,6 @@ struct ContentView: View {
     ContentView()
         .environment(AuthManager())
         .environment(ProfileStore())
+        .environment(CategoryStore())
 }
 

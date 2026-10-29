@@ -76,6 +76,8 @@ struct SignupView: View {
                     }
                 }
                 .formStyle(.grouped)
+                .background(Color(.systemBackground))
+                .scrollContentBackground(.hidden)
                 .listSectionSpacing(10)
                 .scrollDisabled(true)
                 .frame(height: 510)
@@ -220,6 +222,8 @@ struct LoginView: View {
                 .formStyle(.grouped)
                 .scrollDisabled(true)
                 .frame(height: 210)
+                .background(Color(.systemBackground))
+                .scrollContentBackground(.hidden)
                 .padding(-20)
                 
                 Text(err)

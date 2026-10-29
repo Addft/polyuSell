@@ -47,7 +47,11 @@ class ViewModel{
 class CategoryStore {
     var categories: [Category] = []
     var subcategoriesByCategory: [Int: [Subcategory]] = [:]
-
+    init(){
+        Task{
+         try await   load()
+        }
+    }
     func load() async throws {
         async let cats: [Category] = supabase
             .from("categories")

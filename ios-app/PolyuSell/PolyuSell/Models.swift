@@ -43,9 +43,10 @@ struct Subcategory: Codable, Identifiable {
     let categoryId: Int
     var name: String
     var slug: String
+    var icon: String
 
     enum CodingKeys: String, CodingKey {
-        case id, name, slug
+        case id, name, slug, icon
         case categoryId = "category_id"
     }
 }
