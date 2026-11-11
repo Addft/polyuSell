@@ -33,12 +33,18 @@ struct EditProfileView: View {
                         Spacer()
                         avatarPreview(w: 150, avatarUrl: current.avatarUrl, updatedAt: current.updatedAt)
                             .overlay {
-                                Button(action:{isAlert.toggle()}){
-                                    Image(systemName: "pencil")
+                                ZStack{
+                                    Circle()
+                                        .fill(Color(.systemBackground))
+                                        .frame(width: 60, height: 60)
+                                    
+                                    Button(action:{isAlert.toggle()}){
+                                        Image(systemName: "pencil")
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                    .buttonBorderShape(.circle)
+                                    .font(.largeTitle)
                                 }
-                                .buttonStyle(.borderedProminent)
-                                .buttonBorderShape(.circle)
-                                .font(.largeTitle)
                                 .offset(x: 60, y:40)
                             }
                         Spacer()
@@ -81,7 +87,7 @@ struct EditProfileView: View {
                 }
             }
             .textInputAutocapitalization(.sentences)
-            
+            .scrollContentBackground(.hidden)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save"){

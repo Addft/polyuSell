@@ -118,7 +118,54 @@ struct SettingView: View {
     @State var email = ""
     @State var password = ""
     @State var passwordConfirm = ""
+    
+    @State var err = ""
     var body: some View {
-        
+        List{
+            NavigationLink("Change Email") {
+                changeEmailView
+            }
+            
+            NavigationLink("Reset Password"){
+                resetPasswordView
+            }
+        }
+        .listRowSeparator(.hidden)
+    }
+    var resetPasswordView: some View{
+        Form{
+            Section("New password"){
+                SecureField("new password", text: $password)
+            }
+            
+            Section("Confirm new password"){
+                SecureField("confirm password", text: $passwordConfirm)
+            }
+        }
+        .toolbar {
+            ToolbarItem{
+                Button(role: .confirm) {
+                    
+                }
+            }
+        }
+    }
+    var changeEmailView: some View{
+        Form{
+            Section("Email"){
+                Text(authVM.currentUser?.email ?? "")
+            }
+            
+            Section("New email"){
+                TextField("new email", text: $email)
+            }
+        }
+        .toolbar {
+            ToolbarItem{
+                Button(role: .confirm) {
+                    
+                }
+            }
+        }
     }
 }

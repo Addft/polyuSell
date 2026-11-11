@@ -20,30 +20,33 @@ extension View{
 }
 
 struct RootView: View {
-    @Environment(AuthManager.self) var authVM
+    // @Environment(AuthManager.self) var authVM
     var body: some View {
         TabView{
+            
+            Tab("Home", systemImage: "house"){
+                HomeView()
+            }
             Tab("Category", systemImage: "square.grid.2x2"){
                 CategoryView()
             }
-            Tab("Home", systemImage: "house"){
-              
-            }
+            Tab("Chat", systemImage: "bubble"){}
+            
             Tab("Profile", systemImage: "person"){
                 ProfileView()
             }
-            Tab("Chat", systemImage: "bubble"){}
             
         }
     }
 }
 struct ContentView: View {
-   
+    
     @State var isSplash = false
     
     @Environment(AuthManager.self) var authVM
     @Environment(ProfileStore.self) var profileStore
     @Environment(CategoryStore.self) var categoryStore
+    @Environment(ItemStore.self) var itemStore
     var body: some View {
         Group{
             if isSplash{
@@ -65,6 +68,7 @@ struct ContentView: View {
         .environment(authVM)
         .environment(profileStore)
         .environment(categoryStore)
+        .environment(itemStore)
         .ignoresSafeArea(.all)
         .onAppear{
             withAnimation(.easeIn.delay(1)){
@@ -93,5 +97,7 @@ struct ContentView: View {
         .environment(AuthManager())
         .environment(ProfileStore())
         .environment(CategoryStore())
+        .environment(ItemStore())
+        .preferredColorScheme(.light)
 }
 

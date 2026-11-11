@@ -15,12 +15,14 @@ struct PolyuSellApp: App {
     @State var authVM = AuthManager()
     @State var profileStore = ProfileStore()
     @State var categoryStore = CategoryStore()
+    @State var itemStore = ItemStore()
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(authVM)
                 .environment(profileStore)
                 .environment(categoryStore)
+                .environment(itemStore)
                 .onOpenURL { url in
                     Task {
                         do {

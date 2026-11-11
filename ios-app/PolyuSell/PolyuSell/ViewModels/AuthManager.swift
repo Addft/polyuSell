@@ -36,6 +36,7 @@ func isEmailAvailable(email: String) async -> Bool{
         return false
     }
 }
+
 @Observable
 class AuthManager{
     var isLogin = false

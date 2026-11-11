@@ -66,6 +66,17 @@ struct Item: Codable, Identifiable{
     var condition: ItemCondition
     var fulfillment: ItemFulfillment?
     var seller: Profile?
+    
+    enum CodingKeys: String, CodingKey {
+            case id, title, description, photos, price, status, condition, seller
+            case sellerId      = "seller_id"
+            case createdAt     = "created_at"
+            case updatedAt     = "updated_at"
+            case soldAt        = "sold_at"
+            case cId           = "c_id"
+            case subcategoryId = "subcategory_id"
+            case fulfillment   = "item_fulfillment"
+        }
 }
 struct ItemPhoto: Codable, Identifiable{
     let id: UUID
@@ -82,16 +93,28 @@ struct ItemPhoto: Codable, Identifiable{
 }
 enum FulfillmentMethod: String, Codable, CaseIterable {
     case f2f = "F2F"
-    case delivery = "Delivery"
+    case shipping = "Shipping"
 }
 
 struct ItemFulfillment: Codable {
-    var method: FulfillmentMethod
+    var method: Set<FulfillmentMethod>
+    var acceptsFaceToFace: Bool {
+        method.contains(.f2f)
+       }
+
+    var acceptsShipping: Bool {
+        method.contains(.shipping)
+    }
+       
     var placeName: String?
     var latitude: Double?
     var longitude: Double?
-    var deliveryAddress: String?
     var notes: String?
+    
+    enum CodingKeys: String, CodingKey {
+            case method, latitude, longitude, notes
+            case placeName = "place_name"
+        }
 }
 
 struct Conversation: Codable, Identifiable {
