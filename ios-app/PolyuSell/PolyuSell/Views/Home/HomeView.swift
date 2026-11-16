@@ -14,39 +14,50 @@ struct SearchView: View {
     @FocusState var isfocus: Bool
     
     var body: some View {
-        VStack {
-            HStack{
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                    TextField("search", text: $search)
-                        .focused($isfocus)
-                    
+        NavigationStack{
+            VStack {
+                HStack{
+                    Button{
+                        dismiss()
+                    }label: {
+                        Image(systemName: "xmark")
+                            .padding(10)
+                    }
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                        TextField("search", text: $search)
+                            .focused($isfocus)
+                        
+                    }
+                    .padding()
+                    .background(.thinMaterial, in: .capsule)
+                    Button{
+                        
+                    }label: {
+                        Image(systemName: "camera")
+                            .padding()
+                            .background(.thinMaterial, in: .circle)
+                    }
                 }
-                .padding()
-                .background(.thinMaterial, in: .capsule)
-                Button{
-                    
-                }label: {
-                    Image(systemName: "camera")
-                        .padding()
-                        .background(.thinMaterial, in: .circle)
-                }
+                Spacer()
             }
-            Spacer()
-        }
-        .padding()
-        
-        .onAppear {
-            isfocus = true
+            .padding()
+           
+            .onAppear {
+                isfocus = true
+            }
         }
     }
 }
 
 struct HomeView: View {
+    @Environment(AuthManager.self) var authVM
     @Environment(ItemStore.self) var itemStore
     @State var search = ""
     @State var sheetPublish = false
     @State var isSearching = false
+    
+    @State var selectedItem: Item?
     
     @State var subpage: SubPage = .recent
     enum SubPage: String, CaseIterable{
@@ -112,10 +123,13 @@ struct HomeView: View {
                 if itemStore.isLoading{
                     ProgressView()
                 }else{
-                  
+                    
                     LazyVGrid(columns: Array(repeating: GridItem(), count: 2)) {
                         ForEach(items){ item in
-                            ItemCard(item: item)
+                                ItemCard(item: item)
+                                .onTapGesture {
+                                    selectedItem = item
+                                }
                         }
                     }
                     
@@ -125,13 +139,13 @@ struct HomeView: View {
                         LinearGradient(colors: [.secondary.opacity(0.2), .secondary.opacity(0)], startPoint: .bottom, endPoint: .top)
                     )
                     .clipped()
-                   
+                    
                     
                 }
             }
             .scrollContentBackground(.hidden)
             .navigationTitle("Polyu Sell")
-          
+            
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -141,7 +155,9 @@ struct HomeView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {} label: {
+                    NavigationLink {
+                        SavedItemView()
+                    } label: {
                         Image(systemName: "heart").padding(10)
                     }
                 }
@@ -155,66 +171,45 @@ struct HomeView: View {
             .fullScreenCover(isPresented: $isSearching) {
                 SearchView(search: $search)
             }
+            .fullScreenCover(item: $selectedItem){ item in
+                ItemDetailView(item: item)
+            }
             .task {
-                do{
+                do {
                     try await itemStore.fetchItems()
-                }catch{
+                    if let userId = authVM.currentUser?.id {
+                        try await itemStore.fetchSavedItems(userId: userId)
+                    }
+                } catch {
                     print("fetch items failed: \(error.localizedDescription)")
                 }
             }
         }
     }
 }
-
-struct ItemCard: View {
-    let item: Item
-    
-    var coverURL: URL? {
-        guard let path = item.photos.min(by: { $0.order < $1.order })?.storagePath else { return nil }
-        return try? supabase.storage.from("item-photos").getPublicURL(path: path)
+struct SavedItemView: View {
+    @Environment(ItemStore.self) var itemStore
+    @State var selectedItem: Item?
+    var savedItems: [Item] {
+        itemStore.items.filter { itemStore.savedItemIds.contains($0.id) }
     }
-    
     var body: some View {
-        VStack(alignment: .leading){
-                AsyncImage(url: coverURL) { phase in
-                    if let img = phase.image {
-                        img.resizable().scaledToFill()
-                    } else {
-                        Color(.secondarySystemBackground)
-                    }
-                }
-                .frame(width: 160, height:160)
-                .clipShape(.rect(cornerRadius: 10))
-                .overlay(alignment: .topTrailing) {
-                    Button {
-                        
-                    } label: {
-                        ZStack{
-                            Circle()
-                                .fill(.thinMaterial)
-                                .frame(width: 40)
-                            Image(systemName: "heart")
-                                .font(.title2)
+        ScrollView(.vertical,showsIndicators: false){
+            LazyVGrid(columns: Array(repeating: GridItem(), count: 2)) {
+                ForEach(savedItems) { item in
+                    ItemCard(item: item)
+                        .onTapGesture {
+                            selectedItem = item
                         }
-                    }
-                    .padding(10)
-                    
                 }
-                
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(item.title).font(.headline).lineLimit(1)
-                    
-                    Text("HK$\(item.price, specifier: "%.0f")")
-                        .font(.subheadline)
-                        .bold()
-                        
-                    Text("condition \(item.condition.rawValue)")
-                  
             }
-            
         }
-        .padding(12)
-        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 30))
-    
+        .navigationTitle("My likes")
+        .navigationBarTitleDisplayMode(.inline)
+        .fullScreenCover(item: $selectedItem) { item in
+            ItemDetailView(item: item)
+        }
     }
 }
+
+

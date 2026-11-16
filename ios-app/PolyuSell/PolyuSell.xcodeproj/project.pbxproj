@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D52199A830AACBAB00BBC612 /* Supabase.plist in Resources */ = {isa = PBXBuildFile; fileRef = D52199A330AACBAB00BBC612 /* Supabase.plist */; };
+		D52199BC30AACBAB00BBC612 /* Supabase.plist.example in Sources */ = {isa = PBXBuildFile; fileRef = D52199A430AACBAB00BBC612 /* Supabase.plist.example */; };
 		D5497F1A308147A6006D028F /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = D5497F19308147A6006D028F /* Auth */; };
 		D5497F1C308147A6006D028F /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = D5497F1B308147A6006D028F /* Functions */; };
 		D5497F1E308147A6006D028F /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = D5497F1D308147A6006D028F /* PostgREST */; };
@@ -18,37 +20,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D52199A030AACBAB00BBC612 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		D52199A330AACBAB00BBC612 /* Supabase.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Supabase.plist; sourceTree = "<group>"; };
+		D52199A430AACBAB00BBC612 /* Supabase.plist.example */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Supabase.plist.example; sourceTree = "<group>"; };
 		D5497F0030810BA6006D028F /* PolyuSell.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PolyuSell.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		D5497F37308151F6006D028F /* Exceptions for "PolyuSell" folder in "PolyuSell" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"GoogleService-Info.plist",
-				Supabase.plist.example,
-			);
-			target = D5497EFF30810BA6006D028F /* PolyuSell */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		D5D5EE6E308A32BD00A8CF6A /* Exceptions for "PolyuSell" folder in "Compile Sources" phase from "PolyuSell" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = D5497EFC30810BA6006D028F /* Sources */;
-			membershipExceptions = (
-				Supabase.plist.example,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D5497F0230810BA6006D028F /* PolyuSell */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				D5497F37308151F6006D028F /* Exceptions for "PolyuSell" folder in "PolyuSell" target */,
-				D5D5EE6E308A32BD00A8CF6A /* Exceptions for "PolyuSell" folder in "Compile Sources" phase from "PolyuSell" target */,
-			);
 			path = PolyuSell;
 			sourceTree = "<group>";
 		};
@@ -73,9 +53,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D52199C930AB406D00BBC612 /* plist */ = {
+			isa = PBXGroup;
+			children = (
+				D52199A030AACBAB00BBC612 /* GoogleService-Info.plist */,
+				D52199A330AACBAB00BBC612 /* Supabase.plist */,
+				D52199A430AACBAB00BBC612 /* Supabase.plist.example */,
+			);
+			path = plist;
+			sourceTree = "<group>";
+		};
 		D5497EF730810BA6006D028F = {
 			isa = PBXGroup;
 			children = (
+				D52199C930AB406D00BBC612 /* plist */,
 				D5497F0230810BA6006D028F /* PolyuSell */,
 				D5497F0130810BA6006D028F /* Products */,
 			);
@@ -165,6 +156,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D52199A830AACBAB00BBC612 /* Supabase.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -175,6 +167,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D52199BC30AACBAB00BBC612 /* Supabase.plist.example in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

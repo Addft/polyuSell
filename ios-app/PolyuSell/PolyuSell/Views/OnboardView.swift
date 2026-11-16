@@ -31,6 +31,7 @@ struct OnboardView: View {
                 ZStack{
                     Rectangle()
                         .fill(.red)
+                        .ignoresSafeArea(.all)
                     Group{
                         
                         

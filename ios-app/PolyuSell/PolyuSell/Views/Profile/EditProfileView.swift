@@ -26,8 +26,9 @@ struct EditProfileView: View {
     @State var openGallery = false
     var body: some View {
         if let current = profileStore.currentProfile{
-            Text(err)
+         
             Form{
+              //  Text(err)
                 Section("Avatar"){
                     HStack{
                         Spacer()
@@ -64,9 +65,9 @@ struct EditProfileView: View {
                 }
                 Section(header: Text("Name"), footer: Group{
                     if !nameErr.isEmpty{
-                        Text(nameErr)
-                            .font(.footnote)
-                            .foregroundStyle(.red)
+                            Text(nameErr)
+                                .font(.footnote)
+                                .foregroundStyle(.red)
                     }
                 }){
                     TextField("name", text: $name)
@@ -88,6 +89,9 @@ struct EditProfileView: View {
             }
             .textInputAutocapitalization(.sentences)
             .scrollContentBackground(.hidden)
+            .background(.thinMaterial)
+            .navigationTitle("Edit Profile")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save"){

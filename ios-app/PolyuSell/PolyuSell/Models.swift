@@ -6,15 +6,15 @@
 //
 
 import Foundation
-enum ItemStatus: String, CaseIterable, Codable{
+enum ItemStatus: String, CaseIterable, Codable, Hashable{
     case sold, draft, deleted, active
 }
-enum ItemCondition: String, CaseIterable, Codable{
+enum ItemCondition: String, CaseIterable, Codable, Hashable{
     case good, used, fair
     case new = "Brand New"
     case likeNew = "Like New"
 }
-struct Profile: Codable, Identifiable{
+struct Profile: Codable, Identifiable, Hashable{
     let id: UUID
     var email: String
     var username: String
@@ -44,20 +44,20 @@ struct Subcategory: Codable, Identifiable {
     var name: String
     var slug: String
     var icon: String
-
+    
     enum CodingKeys: String, CodingKey {
         case id, name, slug, icon
         case categoryId = "category_id"
     }
 }
-struct Item: Codable, Identifiable{
+struct Item: Codable, Identifiable, Hashable{
     let id: UUID
     let sellerId: UUID
     var createdAt: Date
     var updatedAt: Date
     var soldAt: Date?
     var cId: Int
-    var subcategoryId: Int? 
+    var subcategoryId: Int?
     var title: String
     var description: String?
     var photos: [ItemPhoto]
@@ -68,64 +68,75 @@ struct Item: Codable, Identifiable{
     var seller: Profile?
     
     enum CodingKeys: String, CodingKey {
-            case id, title, description, photos, price, status, condition, seller
-            case sellerId      = "seller_id"
-            case createdAt     = "created_at"
-            case updatedAt     = "updated_at"
-            case soldAt        = "sold_at"
-            case cId           = "c_id"
-            case subcategoryId = "subcategory_id"
-            case fulfillment   = "item_fulfillment"
-        }
+        case id, title, description, price, status, condition, seller
+        case sellerId      = "seller_id"
+        case createdAt     = "created_at"
+        case updatedAt     = "updated_at"
+        case soldAt        = "sold_at"
+        case cId           = "c_id"
+        case subcategoryId = "subcategory_id"
+        case photos        = "item_photos"
+        case fulfillment   = "item_fulfillment"
+    }
 }
-struct ItemPhoto: Codable, Identifiable{
+struct ItemPhoto: Codable, Identifiable, Hashable{
     let id: UUID
     let itemId: UUID
     var storagePath: String
     var order: Int
     
     enum CodingKeys: String, CodingKey {
-            case id
-            case itemId = "item_id"
-            case storagePath = "storage_path"
-            case order = "sort_order"
-        }
+        case id
+        case itemId = "item_id"
+        case storagePath = "storage_path"
+        case order = "sort_order"
+    }
 }
 enum FulfillmentMethod: String, Codable, CaseIterable {
     case f2f = "F2F"
     case shipping = "Shipping"
 }
 
-struct ItemFulfillment: Codable {
+struct ItemFulfillment: Codable, Hashable {
     var method: Set<FulfillmentMethod>
     var acceptsFaceToFace: Bool {
         method.contains(.f2f)
-       }
-
+    }
+    
     var acceptsShipping: Bool {
         method.contains(.shipping)
     }
-       
+    
     var placeName: String?
     var latitude: Double?
     var longitude: Double?
     var notes: String?
     
     enum CodingKeys: String, CodingKey {
-            case method, latitude, longitude, notes
-            case placeName = "place_name"
-        }
+        case method, latitude, longitude, notes
+        case placeName = "place_name"
+    }
 }
 
-struct Conversation: Codable, Identifiable {
+struct Conversation: Codable, Identifiable, Hashable {
     let id: UUID
     let itemId: UUID
     let buyerId: UUID
     let sellerId: UUID
     var lastMessageAt: Date
+    var lastMessage: String?
     var item: Item?
     var buyer: Profile?
     var seller: Profile?
+
+    enum CodingKeys: String, CodingKey {
+        case id, item, buyer, seller
+        case itemId        = "item_id"
+        case buyerId       = "buyer_id"
+        case sellerId      = "seller_id"
+        case lastMessageAt = "last_message_at"
+        case lastMessage   = "last_message"
+    }
 }
 
 struct Message: Codable, Identifiable {
@@ -137,6 +148,16 @@ struct Message: Codable, Identifiable {
     var imageUrl: String?
     var messageType: String
     var readAt: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, body
+        case conversationId = "conversation_id"
+        case senderId       = "sender_id"
+        case createdAt      = "created_at"
+        case imageUrl       = "image_url"
+        case messageType    = "message_type"
+        case readAt         = "read_at"
+    }
 }
 
 struct Review: Codable, Identifiable {
@@ -147,5 +168,15 @@ struct Review: Codable, Identifiable {
     var createdAt: Date
     var rating: Int
     var comment: String?
+    
+    var reviewer: Profile?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, rating, comment, reviewer
+        case itemId     = "item_id"
+        case reviewerId = "reviewer_id"
+        case sellerId   = "seller_id"
+        case createdAt  = "created_at"
+    }
 }
 

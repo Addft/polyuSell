@@ -66,6 +66,8 @@ struct IDRow: Decodable {
 @Observable
 class ItemStore {
     var items: [Item] = []
+    var savedItemIds: Set<UUID> = []
+    
     var isLoading = false
     
     
@@ -171,7 +173,7 @@ class ItemStore {
             .from("items")
             .select("""
                 *,
-                photos:item_photos(*),
+                item_photos(*),
                 seller:profiles(*),
                 item_fulfillment(*)
             """)
@@ -192,5 +194,68 @@ class ItemStore {
             .order("created_at", ascending: false)
             .execute()
             .value
+    }
+    
+    func fetchSavedItems(userId: UUID) async throws {
+        struct SavedRow: Decodable { let item_id: UUID }
+        
+        let rows: [SavedRow] = try await supabase
+            .from("saved_items")
+            .select("item_id")
+            .eq("user_id", value: userId)
+            .execute()
+            .value
+        
+        self.savedItemIds = Set(rows.map { $0.item_id })
+    }
+
+    func toggleSave(itemId: UUID, userId: UUID) async throws {
+        let isSaved = savedItemIds.contains(itemId)
+        if isSaved {
+            savedItemIds.remove(itemId)
+        } else {
+            savedItemIds.insert(itemId)
+        }
+        
+        do {
+            if isSaved {
+                // remove likes
+                try await supabase
+                    .from("saved_items")
+                    .delete()
+                    .eq("user_id", value: userId)
+                    .eq("item_id", value: itemId)
+                    .execute()
+            } else {
+                // add likes
+                struct SavedInsert: Encodable {
+                    let user_id: UUID
+                    let item_id: UUID
+                }
+                let newRecord = SavedInsert(user_id: userId, item_id: itemId)
+                try await supabase
+                    .from("saved_items")
+                    .insert(newRecord)
+                    .execute()
+            }
+        } catch {
+            if isSaved {
+                savedItemIds.insert(itemId)
+            } else {
+                savedItemIds.remove(itemId)
+            }
+            throw error
+        }
+    }
+
+    func fetchReviews(sellerId: UUID) async throws -> [Review] {
+        let reviews: [Review] = try await supabase
+            .from("reviews")
+            .select("*, reviewer:profiles(*)") // 嵌套查出评论者的名字和头像
+            .eq("seller_id", value: sellerId)
+            .order("created_at", ascending: false)
+            .execute()
+            .value
+        return reviews
     }
 }

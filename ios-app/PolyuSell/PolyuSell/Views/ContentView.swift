@@ -30,7 +30,9 @@ struct RootView: View {
             Tab("Category", systemImage: "square.grid.2x2"){
                 CategoryView()
             }
-            Tab("Chat", systemImage: "bubble"){}
+            Tab("Chat", systemImage: "bubble"){
+                ChatListView()
+            }
             
             Tab("Profile", systemImage: "person"){
                 ProfileView()
@@ -47,11 +49,12 @@ struct ContentView: View {
     @Environment(ProfileStore.self) var profileStore
     @Environment(CategoryStore.self) var categoryStore
     @Environment(ItemStore.self) var itemStore
+    @Environment(ChatStore.self) var chatStore
     var body: some View {
         Group{
             if isSplash{
                 if authVM.isRestoring{
-                    ProgressView("Restoring session...")
+                    CustomProgressView()
                 }else{
                     switch authVM.isLogin{
                     case true:
@@ -69,6 +72,7 @@ struct ContentView: View {
         .environment(profileStore)
         .environment(categoryStore)
         .environment(itemStore)
+        .environment(chatStore)
         .ignoresSafeArea(.all)
         .onAppear{
             withAnimation(.easeIn.delay(1)){
@@ -92,12 +96,49 @@ struct ContentView: View {
     }
 }
 
+struct CustomProgressView: View {
+    @State var spin = false
+    var body: some View {
+        VStack{
+                VStack(spacing: 20){
+                    Circle()
+                        .trim(from: 0, to: spin ? 0.75 : 1)
+                        .stroke(lineWidth: 7)
+                        .fill(.accent)
+                        .frame(width: 50, height: 50)
+                        .rotationEffect(.degrees(spin ? 0 : 360))
+                        .animation(.default.repeatForever(autoreverses: false), value: spin)
+                    
+//                    Text("Restoring session...")
+//                        .font(.callout)
+                        
+                }
+                .padding(.horizontal)
+                .frame(width: 150, height: 150)
+                .background(
+                    RoundedRectangle(cornerRadius: 30)
+                        .fill(.thinMaterial)
+                        
+                )
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            Rectangle()
+                .fill(.red)
+                .ignoresSafeArea(.all)
+        )
+        .onAppear{
+            spin = true
+        }
+    }
+}
 #Preview {
     ContentView()
         .environment(AuthManager())
         .environment(ProfileStore())
         .environment(CategoryStore())
         .environment(ItemStore())
+        .environment(ChatStore())
         .preferredColorScheme(.light)
 }
 

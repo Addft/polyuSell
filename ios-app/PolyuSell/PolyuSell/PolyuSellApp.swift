@@ -16,6 +16,7 @@ struct PolyuSellApp: App {
     @State var profileStore = ProfileStore()
     @State var categoryStore = CategoryStore()
     @State var itemStore = ItemStore()
+    @State var chatStore = ChatStore()
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -23,6 +24,7 @@ struct PolyuSellApp: App {
                 .environment(profileStore)
                 .environment(categoryStore)
                 .environment(itemStore)
+                .environment(chatStore)
                 .onOpenURL { url in
                     Task {
                         do {
